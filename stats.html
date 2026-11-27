@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>QR scans · Cyber Insurance</title>
+<style>
+  :root{--ink:#14213d;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);
+       background:#f8fafc;min-height:100vh;display:flex;justify-content:center;padding:48px 20px}
+  main{width:100%;max-width:560px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 28px;word-break:break-all}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .tile{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px}
+  .label{font-size:13px;color:var(--muted)}
+  .num{font-size:44px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}
+  .foot{margin-top:20px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Cyber Insurance QR scans</h1>
+  <p class="sub">Forwards to l.cvsu.in/u/CyberInsuranceLanding</p>
+  <div class="grid">
+    <div class="tile"><div class="label">Total scans</div><div class="num" id="scans">–</div></div>
+    <div class="tile"><div class="label">Unique people</div><div class="num" id="unique">–</div></div>
+  </div>
+  <div class="foot">
+    <span id="updated">Loading…</span>
+    <button id="refresh" type="button">Refresh</button>
+  </div>
+</main>
+<script>
+var API = "https://abacus.jasoncameron.dev/get/coversure-qr/";
+function read(key) {
+  return fetch(API + key, { cache: "no-store" }).then(function (r) {
+    if (r.status === 404) return 0;           // no scans yet
+    if (!r.ok) throw new Error(r.status);
+    return r.json().then(function (j) { return j.value || 0; });
+  });
+}
+function load() {
+  document.getElementById("updated").textContent = "Loading…";
+  Promise.all([read("cyber-scans"), read("cyber-unique")]).then(function (v) {
+    document.getElementById("scans").textContent = v[0].toLocaleString("en-IN");
+    document.getElementById("unique").textContent = v[1].toLocaleString("en-IN");
+    document.getElementById("updated").textContent = "Updated " + new Date().toLocaleTimeString("en-IN");
+  }).catch(function () {
+    document.getElementById("updated").textContent = "Couldn't load counts. Try Refresh.";
+  });
+}
+document.getElementById("refresh").addEventListener("click", load);
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
