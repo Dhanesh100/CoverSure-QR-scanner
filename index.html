@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>CoverSure</title>
+<!-- Fallback: if JavaScript is off, still forward (scan not counted) -->
+<noscript><meta http-equiv="refresh" content="0; url=https://l.cvsu.in/u/CyberInsuranceLanding"></noscript>
+<style>
+  body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
+       font-family:system-ui,-apple-system,sans-serif;color:#555;background:#fff}
+</style>
+</head>
+<body>
+<p>Opening CoverSure…</p>
+<script>
+(function () {
+  var TARGET = "https://l.cvsu.in/u/CyberInsuranceLanding?utm_source=qr_code&utm_medium=offline&utm_campaign=cyber_insurance_landing";
+  var API = "https://abacus.jasoncameron.dev/hit/coversure-qr/";
+  var done = false;
+  function go() { if (!done) { done = true; location.replace(TARGET); } }
+
+  // Never keep the visitor waiting more than 1.2s, even if counting fails.
+  setTimeout(go, 1200);
+
+  var calls = [fetch(API + "cyber-scans", { keepalive: true, cache: "no-store" })];
+
+  // Count unique people: only the first scan from this phone/browser.
+  try {
+    if (!localStorage.getItem("cs_cyber_qr_seen")) {
+      localStorage.setItem("cs_cyber_qr_seen", "1");
+      calls.push(fetch(API + "cyber-unique", { keepalive: true, cache: "no-store" }));
+    }
+  } catch (e) {}
+
+  Promise.all(calls).then(go, go);
+})();
+</script>
+</body>
+</html>
