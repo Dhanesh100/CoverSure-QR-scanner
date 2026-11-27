@@ -21,16 +21,28 @@
   var done = false;
   function go() { if (!done) { done = true; location.replace(TARGET); } }
 
-  // Never keep the visitor waiting more than 1.2s, even if counting fails.
-  setTimeout(go, 1200);
+  // Wait for the count to be saved (max 4s on slow mobile data), then forward.
+  setTimeout(go, 4000);
 
-  var calls = [fetch(API + "cyber-scans", { keepalive: true, cache: "no-store" })];
+  function hit(key) {
+    return fetch(API + key + "?t=" + Date.now(), { cache: "no-store", mode: "cors" })
+      .catch(function () {
+        // Fallback for in-app browsers that block fetch: image ping.
+        return new Promise(function (res) {
+          var img = new Image();
+          img.onload = img.onerror = res;
+          img.src = API + key + "?t=" + Date.now();
+        });
+      });
+  }
+
+  var calls = [hit("cyber-scans")];
 
   // Count unique people: only the first scan from this phone/browser.
   try {
     if (!localStorage.getItem("cs_cyber_qr_seen")) {
       localStorage.setItem("cs_cyber_qr_seen", "1");
-      calls.push(fetch(API + "cyber-unique", { keepalive: true, cache: "no-store" }));
+      calls.push(hit("cyber-unique"));
     }
   } catch (e) {}
 
